@@ -1,0 +1,268 @@
+﻿<Window x:Class="LptControlApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="LPT Control Panel" Height="600" Width="900">
+
+    <Grid Margin="10">
+
+        <!-- REQUIRED ROW DEFINITIONS -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Port selection -->
+            <RowDefinition Height="*"/>
+            <!-- Tabs -->
+        </Grid.RowDefinitions>
+
+        <!-- Port Selection -->
+        <StackPanel Orientation="Horizontal" Margin="0 0 0 10" Grid.Row="0">
+            <Label Content="LPT Port:" Width="80"/>
+            <ComboBox x:Name="PortSelector" Width="120"/>
+            <Button x:Name="BtnConnect" Content="Connect" Width="100" Margin="10 0" Click="BtnConnect_Click"/>
+            <Button x:Name="BtnDisconnect" Content="Disconnect" Width="100" Click="BtnDisconnect_Click"/>
+            <Label x:Name="LblStatus" Content="Status: Disconnected" Margin="20 0"/>
+        </StackPanel>
+
+        <!-- Main Tabs -->
+        <TabControl Grid.Row="1">
+
+            <!-- TAB 1: Dashboard -->
+            <TabItem Header="Dashboard">
+
+                <Grid Margin="10">
+
+                    <!-- FIX: Add row definitions -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- 3-column panels -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Packet Builder -->
+                    </Grid.RowDefinitions>
+
+                    <!-- 3-column layout -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <!-- Commands -->
+                            <ColumnDefinition Width="300"/>
+                            <!-- ASCII Console -->
+                            <ColumnDefinition Width="*"/>
+                            <!-- Log Output -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Canned Commands -->
+                        <Expander Header="Canned Commands" IsExpanded="True" Grid.Column="0" Margin="0 0 10 0">
+                            <StackPanel Margin="10">
+                                <Button Content="Send SOF" Width="120" Margin="5" Click="SendSOF_Click"/>
+                                <Button Content="Send CMD" Width="120" Margin="5" Click="SendCMD_Click"/>
+                                <Button Content="Send DATA" Width="120" Margin="5" Click="SendDATA_Click"/>
+                                <Button Content="Send EOF" Width="120" Margin="5" Click="SendEOF_Click"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- ASCII Console -->
+                        <Expander Header="ASCII Console" IsExpanded="True" Grid.Column="1" Margin="0 0 10 0">
+                            <StackPanel Margin="10">
+
+                                <TextBlock Text="Format: SOF | CMD | ADDR | LEN | DATA | CHK | EOF"
+                           FontWeight="Bold"
+                           Margin="0 0 0 10"/>
+
+                                <Grid Margin="0 0 0 10">
+                                    <TextBox x:Name="AsciiInput"
+                             Width="250"
+                             Height="30"
+                             VerticalContentAlignment="Center"/>
+
+                                    <TextBlock Text="Enter ASCII command (e.g., C W, A 0004, L 0001, 1A2B, E)"
+                               Foreground="Gray"
+                               Margin="5 0 0 0"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=AsciiInput}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+
+                                <Button Content="Send ASCII" Width="120" Click="SendAscii_Click"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Log Output -->
+                        <Expander Header="Log Output" IsExpanded="True" Grid.Column="2">
+                            <TextBox x:Name="TxtLog"
+                     Margin="10"
+                     VerticalScrollBarVisibility="Auto"
+                     TextWrapping="Wrap"/>
+                        </Expander>
+                    </Grid>
+
+                    <!-- Packet Builder (full width, below columns) -->
+                    <Expander Header="Packet Builder" IsExpanded="True" Grid.Row="1" Margin="0 10 0 0">
+                        <StackPanel Margin="10">
+
+                            <TextBlock Text="Build a full protocol packet" FontWeight="Bold" Margin="0 0 0 10"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 5">
+                                <Label Content="SOF:" Width="80"/>
+                                <TextBox x:Name="PktSOF" Width="120" Text="C"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 5">
+                                <Label Content="CMD:" Width="80"/>
+                                <TextBox x:Name="PktCMD" Width="120" Text="W"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 5">
+                                <Label Content="ADDR:" Width="80"/>
+                                <TextBox x:Name="PktADDR" Width="120" Text="0004"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 5">
+                                <Label Content="LEN:" Width="80"/>
+                                <TextBox x:Name="PktLEN" Width="120" Text="02"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 5">
+                                <Label Content="DATA:" Width="80"/>
+                                <TextBox x:Name="PktDATA" Width="200" Text="1A 2B"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 5">
+                                <Label Content="CHK:" Width="80"/>
+                                <TextBox x:Name="PktCHK" Width="120" IsReadOnly="True" Background="#EEE"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0 10">
+                                <Button Content="Build Packet" Width="120" Margin="5" Click="BuildPacket_Click"/>
+                                <Button Content="Send Packet" Width="120" Margin="5" Click="SendPacket_Click"/>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Expander>
+
+                </Grid>
+
+            </TabItem>
+
+            <!-- TAB 2: State Machines -->
+            <TabItem Header="State Machines">
+                <StackPanel Margin="10">
+                    <Button Content="Run READ SM" Width="150" Margin="5" Click="RunReadStateMachine_Click"/>
+                    <Button Content="Run WRITE SM" Width="150" Margin="5" Click="RunWriteStateMachine_Click"/>
+                </StackPanel>
+            </TabItem>
+
+            <!-- TAB 3: Settings -->
+            <TabItem Header="Settings">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Future settings go here."/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Command Syntax">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="20">
+
+                        <TextBlock Text="Protocol Command Syntax Reference"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Margin="0 0 0 20"/>
+
+                        <!-- Section: Overview -->
+                        <Expander Header="Overview" IsExpanded="True" Margin="0 0 10 0">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="This protocol uses ASCII-based framed commands consisting of:"
+                               TextWrapping="Wrap"/>
+                                <TextBlock Text="SOF | CMD | ADDR | LEN | DATA | CHK | EOF"
+                               FontWeight="Bold"
+                               Margin="0 10 0 0"/>
+                                <TextBlock Text="Each field is transmitted as ASCII characters representing hexadecimal values."
+                               TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Section: Field Definitions -->
+                        <Expander Header="Field Definitions" IsExpanded="True" Margin="0 0 10 0">
+                            <StackPanel Margin="10">
+
+                                <TextBlock Text="SOF (Start of Frame)"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="Usually 'C'. Indicates the beginning of a command frame."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="CMD (Command Type)"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="Examples: W = Write, R = Read, D = Data, E = End."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="ADDR (Address)"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="4 ASCII hex characters representing the register address (e.g., 0004)."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="LEN (Length)"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="Number of data bytes to follow, in hex (e.g., 02)."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="DATA"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="Hex byte values separated by spaces (e.g., 1A 2B)."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="CHK (Checksum)"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="XOR of all previous bytes in the frame."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="EOF (End of Frame)"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="Usually 'E'. Marks the end of the frame."
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Section: Examples -->
+                        <Expander Header="Examples" IsExpanded="True" Margin="0 0 10 0">
+                            <StackPanel Margin="10">
+
+                                <TextBlock Text="Write Example"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="C W 0004 02 1A2B CHK E"
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                                <TextBlock Text="Read Example"
+                               FontWeight="Bold"/>
+                                <TextBlock Text="C R 0004 00 CHK E"
+                               TextWrapping="Wrap" Margin="0 0 10 0"/>
+
+                            </StackPanel>
+                        </Expander>
+
+                        <!-- Section: Notes -->
+                        <Expander Header="Notes" IsExpanded="False" Margin="0 0 10 0">
+                            <StackPanel Margin="10">
+                                <TextBlock Text="• All fields are ASCII hex." TextWrapping="Wrap"/>
+                                <TextBlock Text="• CHK is XOR of all bytes except EOF." TextWrapping="Wrap"/>
+                                <TextBlock Text="• LEN must match the number of DATA bytes." TextWrapping="Wrap"/>
+                                <TextBlock Text="• Commands must follow the exact order shown." TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Expander>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+
+        </TabControl>
+
+    </Grid>
+</Window>
